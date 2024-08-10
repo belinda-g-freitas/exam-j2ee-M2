@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    <ui:composition template="templates/template.xhtml">
+        <ui:define name="title">
+            Administration / Paramètres
+        </ui:define>
+        <ui:define name="container">
+            <h:form id="form1" rendered="#{adminParametresBean.haveReadPermission()}">
+                <p:messages globalOnly="true"  />
+                <p:growl globalOnly="true"   id="dataTbMsg" life="8000" showDetail="true"  />
+                <p:dataTable value="#{adminParametresBean.dataModel}" var="item" emptyMessage="Vide !" 
+                             paginator="true" rows="10" paginatorAlwaysVisible="true" id="dataTb" widgetVar="dataTb"  reflow="true"
+                             resizableColumns="true" rowIndexVar="itemIndex" rowKey="#{item.hashCode()}" sortBy="#{item.parametre.code}"
+                             lazy="true">
+                    <f:facet name="header">
+                        <p:defaultCommand target="recordBtn"/>
+                        <p:commandButton value="Enregistrer" actionListener="#{adminParametresBean.enregistrer()}" styleClass="green-color" update="@form" icon="pi pi-save"
+                                         id="recordBtn" process="@form" rendered="#{adminParametresBean.renderComponent()}"/>
+                        <p:commandButton value="Annuler" process="@this" actionListener="#{adminParametresBean.annuler()}" update="@form" icon="pi pi-ban"
+                                         rendered="#{adminParametresBean.renderComponent()}"/>
+                        <p:commandButton value="Actualiser" process="@this" actionListener="#{adminParametresBean.chargerParametres()}" update="@form" 
+                                         icon="pi pi-refresh" id="refreshBtn"/>
+                        <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                        <p:commandButton id="toggler" type="button" value="Colonnes" style="float:right" icon="pi pi-table" />
+                        <p:columnToggler datasource="dataTb" trigger="toggler" />
+                    </f:facet>
+                    <p:column headerText="Code" footerText="Code" filterBy="#{item.parametre.code}" sortBy="#{item.parametre.code}">
+                        <p:outputLabel value="#{item.parametre.code}" />
+                    </p:column>
+                    <p:column headerText="Description" footerText="Description" filterBy="#{item.parametre.description}">
+                        <p:outputLabel value="#{item.parametre.description}" />
+                    </p:column>
+                    <p:column headerText="Agence" footerText="Agence" filterBy="#{item.agence.nom}">
+                        <p:outputLabel value="#{item.agence.nom}" />
+                    </p:column>
+                    <p:column headerText="Valeur" footerText="Valeur" filterBy="#{item.valeur}">
+                        <p:outputLabel value="#{item.valeur}" />
+                    </p:column>
+                    <p:column headerText="Actions" footerText="Actions">
+                        <p:commandButton value="Modifier" process="@this" actionListener="#{adminParametresBean.modifierParametre(item)}" update=":form2" 
+                                       title="Modifier la valeur" icon="pi pi-save" rendered="#{adminParametresBean.renderComponent()}"
+                                       oncomplete="PF('dlg').show()" />
+                    </p:column>
+                </p:dataTable>
+                <p:blockUI block="dataTb" trigger=":form1:dataTb:refreshBtn">
+                    <h2 class="load-font">Chargement en cours</h2>
+                    <p:graphicImage library="img" name="loading.gif" />
+                </p:blockUI>
+            </h:form>
+            <p:dialog widgetVar="dlg" resizable="false" closable="true" closeOnEscape="true" draggable="true" dynamic="true" header="Modification de paramètre" modal="true" 
+                      responsive="true" width="40%" appendTo="@(body)">
+                <h:form id="form2">
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <p:outputLabel value="Code" for="code" />
+                        <p:outputLabel value="Agence" for="agence" />
+                        
+                        <p:inputText value="#{adminParametresBean.formObject.parametre.code}" id="code" readonly="true" />
+                        <p:inputText value="#{adminParametresBean.formObject.agence.nom}" id="agence" readonly="true" />
+                        
+                        <p:outputLabel value="Description" for="desc" />
+                        <p:outputLabel value="Valeur" for="valeur" />
+                        
+                        <p:inputText value="#{adminParametresBean.formObject.parametre.description}" id="desc" readonly="true" />
+                        <p:column>
+                            <p:inputText value="#{adminParametresBean.formObject.valeur}" id="valeur" title="#{adminParametresBean.formObject.valeur}"
+                                     required="true" requiredMessage="Obligatoire"/>
+                            <p:message for="valeur" id="valeurMsg" />
+                        </p:column>
+                        <p:commandButton value="Enregistrer" actionListener="#{adminParametresBean.modifier()}" styleClass="green-color"
+                                         update=":form1" icon="pi pi-save" id="recordBtn" process="@form" oncomplete="PF('dlg').hide()"/>
+                        <p:focus for="valeur" />
+                        <p:defaultCommand target="recordBtn"/>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+        </ui:define>
+    </ui:composition>
+</html>

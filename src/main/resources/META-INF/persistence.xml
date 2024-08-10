@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+  <persistence-unit name="org.flex.app.jee_war_PU" transaction-type="JTA">
+    <jta-data-source>jdbc/model_postgresql</jta-data-source>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+  </persistence-unit>
+  <persistence-unit name="org.flex.app.jee.admin_war_PU" transaction-type="JTA">
+    <jta-data-source>jdbc/model_postgresql</jta-data-source>
+    <class>com.esgis.jee.model.admin.entity.view.JournalActivitesView</class>
+    <class>com.esgis.jee.model.admin.entity.PermissionRole</class>
+    <class>com.esgis.jee.model.admin.entity.Activite</class>
+    <class>com.esgis.jee.model.admin.entity.Permission</class>
+    <class>com.esgis.jee.model.admin.entity.Utilisateur</class>
+    <class>com.esgis.jee.model.admin.entity.ParametreAgence</class>
+    <class>com.esgis.jee.model.admin.entity.Session</class>
+    <class>com.esgis.jee.model.admin.entity.RoleUtilisateur</class>
+    <class>com.esgis.jee.model.admin.entity.Ihm</class>
+    <class>com.esgis.jee.model.admin.entity.PermissionUtilisateur</class>
+    <class>com.esgis.jee.model.admin.entity.Parametre</class>
+    <class>com.esgis.jee.model.admin.entity.Agence</class>
+    <class>com.esgis.jee.model.admin.entity.Role</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+    <properties>
+      <property name="eclipselink.cache.shared.Utilisateur" value="true"/>
+    </properties>
+  </persistence-unit>
+</persistence>

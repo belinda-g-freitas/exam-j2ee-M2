@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="title">
+            Administration / Utilisateurs
+        </ui:define>
+        <ui:define name="container">
+            <h:form id="form1">
+                <p:fieldset legend="infos" id="infosFS">
+                    <h:panelGrid columns="4" cellpadding="5" id="infosPG">
+                        <p:outputLabel value="Identifiant" for="identifiant" />
+                        <p:outputLabel value="Agence" for="agence" />
+                        <p:outputLabel value="Mot de passe (défaut : #{adminUtilisateursBean.defautMdp})" for="mdp" />
+                        <p:outputLabel value="Longuer mdp" for="longueurMdp" />
+
+                        <p:column>
+                            <p:inputText value="#{adminUtilisateursBean.formObject.identifiant}" id="identifiant" required="true" requiredMessage="Obligatoire"
+                                         readonly="#{!adminUtilisateursBean.renderComponent()}" validator="requiredAndNotBlankValid"/>
+                            <p:message id="identifiantMsg" for="identifiant" />
+                        </p:column>
+                        <p:selectOneMenu value="#{adminUtilisateursBean.formObject.agence}" converter="omnifaces.SelectItemsConverter" var="a"
+                                         filter="true" filterMatchMode="contains" id="agence" disabled="#{!adminUtilisateursBean.createAllUsers}"
+                                         required="true" requiredMessage="Obligatoire" autoWidth="false" style="width: 150px">
+                            <f:selectItems value="#{adminUtilisateursBean.agenceSOMComponentManager.simulatorSet}" var="agence" itemLabel="#{agence.nom}" itemValue="#{agence}"/>
+                            <p:column>
+                                #{a.nom}
+                            </p:column>
+                            <p:ajax event="focus" process="@this" listener="#{adminUtilisateursBean.agenceSOMComponentManager.onFocus(adminUtilisateursBean.formObject, 'agence', 'Agences')}" oncomplete="PF('agenceSomDlg').show();" global="false" async="true" resetValues="true" ignoreAutoUpdate="true" partialSubmit="true" update="agenceSomForm" />
+                        </p:selectOneMenu>
+                        <p:password feedback="true" goodLabel="Bien" weakLabel="Mauvais" redisplay="true" 
+                                    promptLabel="Mot de passe" value="#{adminUtilisateursBean.formObject.motDePasse}" id="mdp" 
+                                    strongLabel="Excellent !" required="true" requiredMessage="Obligatoire" readonly="true"/>
+                        <p:spinner value="#{adminUtilisateursBean.formObject.longueurMdp}" id="longueurMdp" readonly="true" />
+
+                        <p:outputLabel value="Nom" for="nom" />
+                        <p:outputLabel value="Date inscription" for="dateInscription" />
+                        <p:outputLabel value="Actif" for="actif" />
+                        <p:column />
+
+                        <p:column>
+                            <p:inputText value="#{adminUtilisateursBean.formObject.nom}" id="nom" required="true" requiredMessage="Obligatoire"
+                                         readonly="#{!adminUtilisateursBean.renderComponent()}" validator="requiredAndNotBlankValid"/>
+                            <p:message id="nomMsg" for="nom" />
+                        </p:column>
+                        <p:calendar value="#{adminUtilisateursBean.formObject.dateInscription}" readonly="true" navigator="true" readonlyInput="true" 
+                                    disabled="true" id="dateInscription" timeZone="#{parametreBean.timeZoneId}" pattern="#{parametreBean.datePattern}"
+                                    showOtherMonths="true" selectOtherMonths="true"/>
+                        <p:column>
+                            <p:inputSwitch id="actif" value="#{adminUtilisateursBean.formObject.actif}" onLabel="Oui" offLabel="Non" required="true" 
+                                           requiredMessage="Obligatoire" disabled="#{!adminUtilisateursBean.renderComponent()}" />
+                            <p:message id="actifMsg" for="actif" />
+                        </p:column>
+                    </h:panelGrid>
+                </p:fieldset>
+                <p:messages globalOnly="true"   />
+                <p:growl globalOnly="true"   id="dataTbMsg"  life="8000"  />
+                <h:panelGrid columns="2" cellpadding="5" id="dataTbPG">
+                    <p:dataTable value="#{adminUtilisateursBean.roleUtilisateurDataModel}" var="item" emptyMessage="Vide !" id="dataTb" widgetVar="dataTb"
+                                 sortBy="#{item.role.nom}" paginator="true" rows="5" paginatorAlwaysVisible="true"
+                                 style="width: 100%" reflow="true" resizableColumns="true" editable="#{adminUtilisateursBean.renderComponent()}" editMode="cell" rowIndexVar="itemIndex"
+                                 rowStyleClass="#{(item.actif eq false)? 'red-color' : null}"
+                                 lazy="true">
+                        <f:facet name="header">
+                            <p:defaultCommand target="recordBtn"/>
+                            <p:commandButton value="Rechercher" process="@this" update=":form2" icon="pi pi-search" actionListener="#{adminUtilisateursBean.chargerUtilisateurs(true)}" 
+                                             oncomplete="PF('dlg').show()" id="searchBtn" rendered="#{adminUtilisateursBean.haveReadPermission()}"/>
+                            <p:commandButton value="Enregistrer" actionListener="#{adminUtilisateursBean.enregistrer()}" styleClass="green-color"
+                                             update="@form" icon="pi pi-save" id="recordBtn" process="@form"
+                                             rendered="#{adminUtilisateursBean.renderComponent()}"/>
+                            <p:commandButton value="Réinitialiser le mdp" actionListener="#{adminUtilisateursBean.resetPassword()}" styleClass="green-color"
+                                             update="@form" icon="pi pi-key" process="@form" title="Réinitialiser le mot de passe"
+                                             rendered="#{adminUtilisateursBean.renderComponent()}" disabled="#{adminUtilisateursBean.selectedObject eq null}"/>
+                            <p:commandButton value="Effacer" process="@this" actionListener="#{adminUtilisateursBean.effacer()}" update="@form"
+                                             icon="pi pi-times" rendered="#{adminUtilisateursBean.haveCreatePermission() || adminUtilisateursBean.haveUpdatePermission()}"/>
+                            <p:commandButton value="Ajouter" process="@this" actionListener="#{adminUtilisateursBean.ajouterRoleUtilisateur()}" update=":form1:dataTb"
+                                             title="Ajouter un rôle" icon="pi pi-plus" rendered="#{adminUtilisateursBean.renderComponent()}"/>
+                            <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                        </f:facet>
+                        <p:ajax event="cellEdit" listener="#{adminUtilisateursBean.onCellEdit}" update=":form1:dataTbMsg" />
+                        <p:column headerText="Rôle" footerText="Rôle" filterBy="#{item.role.nom}" filterMatchMode="contains">
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <p:outputLabel value="#{item.role.nom}" />
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:selectOneMenu value="#{item.role}" converter="omnifaces.SelectItemsConverter" var="r" filter="true" 
+                                                     filterMatchMode="contains" id="role" required="true" requiredMessage="Obligatoire"
+                                                     autoWidth="false">
+                                        <f:selectItem itemLabel="---Aucune sélection---" itemValue="" />
+                                        <f:selectItems value="#{adminUtilisateursBean.roleList}" var="role" itemLabel="#{role.nom}" itemValue="#{role}"/>
+                                        <p:column>
+                                            #{r.nom}
+                                        </p:column>
+                                        <p:column>
+                                            #{r.description}
+                                        </p:column>
+                                        <p:ajax event="change" update="description" />
+                                    </p:selectOneMenu>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column headerText="Description" footerText="Description" filterBy="#{item.role.description}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.role.description}" id="description" />
+                        </p:column>
+                        <p:column headerText="Actif" footerText="Actif" filterBy="#{item.actif}" filterMatchMode="contains">
+                            <p:inputSwitch value="#{item.actif}" onLabel="Oui" offLabel="Non" disabled="true"/>
+                        </p:column>
+                        <p:column headerText="Actions" footerText="Actions">
+                            <p:commandButton value="#{(item.actif eq true)?'Retirer':'Attribuer'}" process="@this" 
+                                             actionListener="#{adminUtilisateursBean.retirerRoleUtilisateur(item)}" update="dataTb" 
+                                             title="#{(item.actif eq true)?'Retirer':'Attribuer'} ce rôle" styleClass="red-color" 
+                                             icon="ui-icon-#{(item.actif eq true)?'minus':'plus'}"
+                                             rendered="#{adminUtilisateursBean.renderComponent()}"/>
+                        </p:column>
+                    </p:dataTable>
+                    <p:dataTable value="#{adminUtilisateursBean.permissionUtilisateurDataModel}" var="puItem" emptyMessage="Vide !" id="puDataTb" widgetVar="puDataTb"
+                                 sortBy="#{puItem.permission.nom}" paginator="true" rows="5" paginatorAlwaysVisible="true"
+                                 style="width: 100%" reflow="true" resizableColumns="true" editable="true" editMode="cell" rowIndexVar="puItemIndex"
+                                 rowStyleClass="#{(puItem.active eq false)? 'red-color' : null}"
+                                 lazy="true">
+                        <f:facet name="header">
+                            <p:commandButton value="Ajouter" process="@this" update=":form3" title="Ajouter une permission" icon="pi pi-plus" actionListener="#{adminUtilisateursBean.chargerPermissions(true)}"
+                                             rendered="#{adminUtilisateursBean.renderComponent()}" oncomplete="PF('puDlg').show()"/>
+                            <p:inputText id="globalFilter" onkeyup="PF('puDataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                        </f:facet>
+                        <p:column headerText="Nom permission" footerText="Nom permission" filterBy="#{puItem.permission.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{puItem.permission.nom}" />
+                        </p:column>
+                        <p:column headerText="IHM" footerText="IHM" filterBy="#{puItem.permission.ihm.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{puItem.permission.ihm.nom}" />
+                        </p:column>
+                        <p:column headerText="Description IHM" footerText="Description IHM" filterBy="#{puItem.permission.ihm.description}" filterMatchMode="contains">
+                            <p:outputLabel value="#{puItem.permission.ihm.description}" />
+                        </p:column>
+                        <p:column headerText="Operation" footerText="Operation" filterBy="#{puItem.permission.operation.label}" filterMatchMode="contains">
+                            <p:outputLabel value="#{puItem.permission.operation.label}" />
+                        </p:column>
+                        <p:column headerText="Active" footerText="Active" filterBy="#{puItem.active}">
+                            <p:inputSwitch value="#{puItem.active}" onLabel="Oui" offLabel="Non" disabled="true"/>
+                        </p:column>
+                        <p:column headerText="Actions" footerText="Actions">
+                            <p:commandButton value="#{(puItem.active eq true)?'Retirer':'Attribuer'}" process="@this" 
+                                             actionListener="#{adminUtilisateursBean.retirerPermissionUtilisateur(puItem)}" 
+                                             update=":form1:puDataTb" title="#{(puItem.active eq true)?'Retirer':'Attribuer'} cette permission" 
+                                             styleClass="red-color" icon="ui-icon-#{(puItem.active eq true)?'minus':'plus'}"
+                                             rendered="#{adminUtilisateursBean.renderComponent()}"/>
+                        </p:column>
+                    </p:dataTable>
+                </h:panelGrid>
+            </h:form>
+            <p:dialog widgetVar="dlg" resizable="false" closable="true" closeOnEscape="true" draggable="true" dynamic="true" header="Utilisateurs" modal="true" 
+                      responsive="true" width="70%" appendTo="@(body)">
+                <p:ajax event="close" update=":form1" /> <!-- evite les NullPointer pour CellEditFeature -->
+                <h:form id="form2">
+                    <p:dataTable value="#{adminUtilisateursBean.dataModel}" var="item" emptyMessage="Vide !" sortBy="#{item.dateInscription}"
+                                 rowKey="#{item.hashCode()}" paginator="true" rows="10" paginatorAlwaysVisible="true" id="dataTb" widgetVar="dataTb" style="width: 100%" 
+                                 reflow="true" resizableColumns="true" rowIndexVar="itemIndex" selection="#{adminUtilisateursBean.selectedObject}"
+                                 selectionMode="single" rowStyleClass="#{(item.actif eq false)? 'red-color' : null}"
+                                 lazy="true">
+                        <f:facet name="header">
+                            <p:commandButton value="Actualiser" process="@this" actionListener="#{adminUtilisateursBean.chargerUtilisateurs(false)}"
+                                             update="@form" icon="pi pi-refresh" id="refreshBtn"/>
+                            <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                            <p:commandButton id="toggler" type="button" value="Colonnes" style="float:right" icon="pi pi-table" />
+                            <p:columnToggler datasource="dataTb" trigger="toggler" />
+                        </f:facet>
+                        <p:ajax event="rowSelect" listener="#{adminUtilisateursBean.onSelection()}" update=":form1" oncomplete="PF('dlg').hide()" />
+                        <p:column headerText="Identifiant" footerText="Identifiant" filterBy="#{item.identifiant}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.identifiant}" />
+                        </p:column><p:column headerText="Agence" footerText="Agence" filterBy="#{item.agence.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.agence.nom}" />
+                        </p:column>
+                        <p:column headerText="Longueur mdp" footerText="Longueur mdp" filterBy="#{item.longueurMdp}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.longueurMdp}" />
+                        </p:column>
+                        <p:column headerText="Nom" footerText="Nom" filterBy="#{item.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.nom}" />
+                        </p:column>
+                        <p:column headerText="Date inscription" footerText="Date inscription" filterBy="#{item.dateInscription}" filterFunction="#{parametreBean.filterByDate}">
+                            <f:facet name="filter">
+                                <p:calendar navigator="true" pattern="#{parametreBean.dateDefautPattern()}" showOtherMonths="true" selectOtherMonths="true" 
+                                            showButtonPanel="true"  timeZone="#{parametreBean.timeZoneId}">
+                                    <p:ajax event="dateSelect" oncomplete="PF('dataTb').filter()" />
+                                    <p:ajax event="change" oncomplete="PF('dataTb').filter()"/>
+                                </p:calendar>
+                            </f:facet>
+                            <p:outputLabel value="#{item.dateInscription}">
+                                <f:convertDateTime type="both" pattern="#{parametreBean.datePattern}" timeZone="#{parametreBean.timeZoneId}" />
+                            </p:outputLabel>
+                        </p:column>
+                        <p:column headerText="Actif" footerText="Actif" filterBy="#{item.actif}" filterMatchMode="contains">
+                            <p:inputSwitch value="#{item.actif}" onLabel="Oui" offLabel="Non" disabled="true"/>
+                        </p:column>
+                    </p:dataTable>
+                    <p:blockUI block="dataTb" trigger=":form2:dataTb:refreshBtn">
+                        <h2 class="load-font">Chargement en cours</h2>
+                        <p:graphicImage library="img" name="loading.gif" />
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="puDlg" resizable="false" closable="true" closeOnEscape="true" draggable="true" dynamic="true" header="Permissions" modal="true" 
+                      responsive="true" width="70%" appendTo="@(body)">
+                <p:ajax event="close" update=":form1" /> <!-- evite les NullPointer pour CellEditFeature -->
+                <h:form id="form3">
+                    <p:dataTable value="#{adminUtilisateursBean.permissionDataModel}" var="item" emptyMessage="Vide !" sortBy="#{item.nom}"
+                                 rowKey="#{item.hashCode()}" paginator="true" rows="10" paginatorAlwaysVisible="true" id="dataTb" widgetVar="dataTb" style="width: 100%" 
+                                 reflow="true" resizableColumns="true" rowIndexVar="itemIndex" selection="#{adminUtilisateursBean.selectedPermissionList}"
+                                 selectionMode="multiple" rowStyleClass="#{(item.active eq false)? 'red-color' : null}"
+                                 lazy="true">
+                        <f:facet name="header">
+                            <p:commandButton value="Actualiser" process="@this" actionListener="#{adminUtilisateursBean.chargerPermissions(false)}" update="@form" 
+                                             icon="pi pi-refresh" id="refreshBtn"/>
+                            <p:commandButton value="Ajouter" icon="pi pi-check" actionListener="#{adminUtilisateursBean.ajouterPermissionUtilisateur()}" 
+                                             process="dataTb" update=":form1:puDataTb" oncomplete="PF('puDlg').hide()" />
+                            <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                            <p:commandButton id="toggler" type="button" value="Colonnes" style="float:right" icon="pi pi-table" />
+                            <p:columnToggler datasource="dataTb" trigger="toggler" />
+                        </f:facet>
+                        <p:column headerText="Nom permission" footerText="Nom permission" filterBy="#{item.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.nom}" />
+                        </p:column>
+                        <p:column headerText="IHM" footerText="IHM" filterBy="#{item.ihm.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.ihm.nom}" />
+                        </p:column>
+                        <p:column headerText="Description IHM" footerText="Description IHM" filterBy="#{item.ihm.description}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.ihm.description}" />
+                        </p:column>
+                        <p:column headerText="Operation" footerText="Operation" filterBy="#{item.operation.label}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.operation.label}" />
+                        </p:column>
+                        <p:column headerText="Active" footerText="Active" filterBy="#{item.active}">
+                            <p:inputSwitch value="#{item.active}" onLabel="Oui" offLabel="Non" disabled="true"/>
+                        </p:column>
+                        <f:facet name="footer">
+                            
+                        </f:facet>
+                    </p:dataTable>
+                    <p:blockUI block="dataTb" trigger=":form3:dataTb:refreshBtn">
+                        <h2 class="load-font">Chargement en cours</h2>
+                        <p:graphicImage library="img" name="loading.gif" />
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="agenceSomDlg" resizable="false" closable="true" closeOnEscape="true" draggable="true" dynamic="true" header="#{adminUtilisateursBean.agenceSOMComponentManager.dialogTitle}" modal="true" 
+                      responsive="true" width="40%" appendTo="@(body)">
+                <h:form id="agenceSomForm">
+                    <p:dataTable value="#{adminUtilisateursBean.agenceSOMComponentManager.dataModel}" var="item" emptyMessage="Vide !" 
+                                 rowKey="#{item.hashCode()}" paginator="true" rows="10" paginatorAlwaysVisible="true" id="dataTb" widgetVar="dataTb"
+                                 reflow="true" resizableColumns="true" rowIndexVar="itemIndex" selection="#{adminUtilisateursBean.agenceSOMComponentManager.modelSomObject}"
+                                 selectionMode="single"
+                                 lazy="true">
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column rowspan="1" colspan="2" headerText="#{adminUtilisateursBean.agenceSOMComponentManager.dialogTitle}" style="font-weight: bold" toggleable="false" />
+                            </p:row>
+                            <p:row>
+                                <p:column rowspan="1" colspan="2" toggleable="false">
+                                    <f:facet name="header">
+                                        <p:commandButton value="Aucune sélection" process="@this" actionListener="#{adminUtilisateursBean.onAgenceSelectOneMenuSelect(false)}" update=":form1" 
+                                                         icon="ui-icon-closethick" onclick="PF('dataTb').unselectAllRows();" oncomplete="PF('agenceSomDlg').hide()" />
+                                        <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                                        <p:commandButton id="toggler" type="button" value="Colonnes" style="float:right" icon="pi pi-table" />
+                                        <p:columnToggler datasource="dataTb" trigger="toggler" />
+                                    </f:facet>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column colspan="1" headerText="Ville" filterBy="#{item.ville}" filterMatchMode="contains" />
+                                <p:column colspan="1" headerText="Pays" filterBy="#{item.pays}" filterMatchMode="contains" />
+                            </p:row>
+                        </p:columnGroup>
+                        <p:ajax event="rowSelect" listener="#{adminUtilisateursBean.onAgenceSelectOneMenuSelect(true)}" process="@this" update=":form1" oncomplete="PF('agenceSomDlg').hide()" />
+                        <p:column>
+                            <p:outputLabel value="#{item.code}" />
+                        </p:column>
+                        <p:column>
+                            <p:outputLabel value="#{item.nom}" />
+                        </p:column>
+                    </p:dataTable>
+                    <p:blockUI block="dataTb" trigger=":form2:dataTb:refreshBtn">
+                        <h2 class="load-font">Chargement en cours</h2>
+                        <p:graphicImage library="img" name="loading.gif" />
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+        </ui:define>
+    </ui:composition>
+</html>

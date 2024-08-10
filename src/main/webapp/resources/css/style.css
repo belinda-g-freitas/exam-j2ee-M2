@@ -1,0 +1,107 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    background-color: #FFF;
+}
+@font-face {
+    font-family: 'BernadoModa';
+    src: url("#{resource['css:fonts/Bernardo-Moda-Bold.ttf']}") format('ttf'),
+    url("#{resource['css:fonts/Bernardo-Moda-Bold.ttf']}") format('truetype');
+}
+.btn-margins * {
+    /* Appliquer une marge à tous les enfants de la `<div>` parent */
+    margin: 10px !important;
+}
+.red-color {
+    background-color: rgba(231,76,60,1.0);
+    color: #FFF;
+}
+.green-color {
+    background-color: rgba(46,204,113,1.0);
+    color: #FFF;
+}
+.blue-color {
+    background-color: rgba(52,152,219,1.0);
+    color: #FFF;
+}
+.load-font {
+    color: black;
+    font-size: 13px;
+}
+.vSeparator {
+    border-left: 3px solid;
+    margin-left: 10px;
+    padding-left: 10px;
+}
+
+.ui-layout, .ui-layout-unit, .ui-layout-unit-content, .ui-layout-doc {                    
+    padding: 0px;
+    margin: 0px;
+    border: none;
+}
+.ui-widget,.ui-widget .ui-widget ,.ui-widget-header, .ui-widget-content,.ui-messages-error-detail, h3{
+    font-family: 'Segoe UI';
+    font-size: 16px;
+    font-weight: 100;
+}
+.centered-block {
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+}
+.topbar {
+    width: 98%;
+    height: 40px;
+/*    position: fixed;*/
+    z-index: 1000;
+    background-color: #283593;
+    padding: 10px 1%;
+    box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.3);
+}
+h2, .title {
+    font-size: 26px;
+    font-family: 'BernadoModa';
+    font-weight: bolder;
+/*    text-align: center;*/
+}
+.refreshBtn {
+    margin-left: 10px;
+}
+.ui-datatable .ui-widget-content {
+    text-align: center;
+}
+.ui-inputtext,.ui-menuitem-text,h2,.title {
+    /* color : #03a9f4; */
+}
+.ui-button, .ui-steps .ui-steps-item .ui-steps-number, .ui-tabs-top .ui-tabs-nav{
+    /* background-color: #03a9f4; */
+}
+/*, .ui-inputswitch*/
+.app-name {
+    color: white;
+    font-family: 'BernadoModa';
+    font-weight: bolder;
+    font-size: 28px;
+    width: auto;
+    height: auto;
+    display: inline-block;
+    vertical-align: middle;
+}
+.logo {
+    transition: all 0.3s ease 0s;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #FFF;
+    overflow: hidden;
+    float: left;
+    background-color: rgba(42, 42, 42, 0.2);
+}
+
+.nb-notif {
+    transition: all 0.3s ease 0s;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+    float: left;
+    color: rgba(231,76,60,1.0);
+}

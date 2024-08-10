@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    <h:head>
+        <title>
+            <ui:insert name="title" />
+        </title>
+        <h:outputStylesheet library="css" name="style.css" />
+        <h:outputScript library="js" name="french_locale.js" />
+    </h:head>
+    <h:body>
+        <f:view locale="#{parametreBean.locale}">
+            <ui:insert name="page">
+                <div class="ui-grid ui-grid-responsive">
+                    <div id="topbar" class="topbar ui-grid-row">
+                        <div  class="ui-grid-col-11">
+                            <p:outputLabel value="MODEL" styleClass="app-name" style="margin-left: 15px"/>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-2">
+                            <h:form id="form00">
+                                <p:graphicImage library="img" name="profil.png" cache="true" width="80%" height="50%" style="border-radius: 50%; margin-top: 10px; margin-left: 30px" />
+                                <h2 style="text-align: center">#{sessionBean.formObject.nom}</h2>
+                                <p:separator/>
+                                <center>
+                                    <p:menu toggleable="true">
+                                        <p:submenu label="Administration" expanded="false"
+                                                   rendered="#{viewManagerBean.haveAnyPermission(['adminAgencesView','adminUtilisateursView','adminRolesView','adminParametresView','adminJournalView', 'adminDebugView'])}">
+                                            <p:menuitem value="Agences" action="#{viewManagerBean.openView('adminAgencesView')}" process="@this" rendered="#{viewManagerBean.haveAnyPermission('adminAgencesView')}"/>
+                                            <p:menuitem value="Utilisateurs" action="#{viewManagerBean.openView('adminUtilisateursView')}" process="@this" rendered="#{viewManagerBean.haveAnyPermission('adminUtilisateursView')}"/>
+                                            <p:menuitem value="Rôles" action="#{viewManagerBean.openView('adminRolesView')}" process="@this" rendered="#{viewManagerBean.haveAnyPermission('adminRolesView')}"/>
+                                            <p:menuitem value="Paramètres" action="#{viewManagerBean.openView('adminParametresView')}" process="@this" rendered="#{viewManagerBean.haveAnyPermission('adminParametresView')}"/>
+                                            <p:menuitem value="Journal" action="#{viewManagerBean.openView('adminJournalView')}" process="@this" rendered="#{viewManagerBean.haveAnyPermission('adminJournalView')}"/>
+                                            <p:menuitem value="Déboggage" action="#{viewManagerBean.openView('adminDebugView')}" process="@this" rendered="#{viewManagerBean.haveAnyPermission('adminDebugView')}"/>
+                                        </p:submenu>
+                                        <p:submenu label="Autres" expanded="false">
+                                            <p:menuitem value="Changer le mot de passe" action="#{autresPasswordChangeBean.openView()}" process="@this"/>
+                                            <p:menuitem value="A propos" action="autresAProposView" process="@this"/>
+                                        </p:submenu>
+                                    </p:menu>
+                                    <p:separator/>
+                                    <p:commandLink action="#{sessionBean.disconnect()}" process="@this" ignoreAutoUpdate="true">
+                                        <p:graphicImage library="img" name="shutdown.png" height="50" width="50" />
+                                    </p:commandLink>
+                                </center>
+                            </h:form>
+                        </div>
+                        <div class="ui-grid-col-10" style="margin-left: 10px">
+                            <h2><ui:insert name="title" /></h2>
+                            <p:separator />
+<!--                            <oou:importConstants type="org.nbf.bagpass.business.entity.vo.ModePaiement" var="ModePaiement" />\-->
+                            <ui:insert name="container" />
+                            <p:ajaxExceptionHandler type="jakarta.faces.application.ViewExpiredException" update="exceptionDialog" 
+                                                    onexception="PF('exceptionDialog').show();" />
+                            <p:dialog id="exceptionDialog" header="Exception: #{pfExceptionHandler.type} occured!" 
+                                      widgetVar="exceptionDialog" height="500px">
+                                Message: #{pfExceptionHandler.message} <br/>
+                                StackTrace: <h:outputText value="#{pfExceptionHandler.formattedStackTrace}" escape="false" />
+                                <p:button onclick="document.location.href = document.location.href;" value="Reload!"/>
+                            </p:dialog>
+                        </div>
+                    </div>
+                </div>
+            </ui:insert>
+        </f:view>
+    </h:body>
+</html>

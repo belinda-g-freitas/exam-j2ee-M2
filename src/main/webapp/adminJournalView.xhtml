@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    <ui:composition template="templates/template.xhtml">
+        <ui:define name="title">
+            Administration / Journal
+        </ui:define>
+        <ui:define name="container">
+            <h:form id="form1" rendered="#{adminJournalBean.haveReadPermission()}">
+                <p:messages globalOnly="true"  />
+                <p:growl globalOnly="true"   id="dataTbMsg" life="8000" showDetail="true"  />
+                <p:dataTable value="#{adminJournalBean.dataModel}" var="item" emptyMessage="Vide !" 
+                             paginator="true" rows="15" paginatorAlwaysVisible="true" id="dataTb" widgetVar="dataTb"  reflow="true"
+                             resizableColumns="true" rowIndexVar="itemIndex" sortBy="#{item.dateRealisationActivite}"
+                             lazy="true">
+                    <f:facet name="header">
+                        <p:commandButton value="Actualiser" process="@this" actionListener="#{adminJournalBean.chargerActivites()}" update="@form" 
+                                         icon="pi pi-refresh" id="refreshBtn"/>
+                        <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                        <p:commandButton id="toggler" type="button" value="Colonnes" style="float:right" icon="pi pi-table" />
+                        <p:columnToggler datasource="dataTb" trigger="toggler" />
+                    </f:facet>
+                    <p:column headerText="Utilisateur" footerText="Utilisateur" filterBy="#{item.nomUtilisateur}">
+                        <p:outputLabel value="#{item.nomUtilisateur}" />
+                    </p:column>
+                    <p:column headerText="Agence" footerText="Agence" filterBy="#{item.nomAgence}">
+                        <p:outputLabel value="#{item.nomAgence}" />
+                    </p:column>
+                    <p:column headerText="Session (début)" footerText="Session (début)" filterBy="#{item.dateDebutSession}">
+                        <p:outputLabel value="#{item.dateDebutSession}">
+                            <f:convertDateTime type="both" pattern="#{parametreBean.datePattern}" />
+                        </p:outputLabel>
+                    </p:column>
+                    <p:column headerText="Session (fin)" footerText="Session (fin)" filterBy="#{item.dateFinSession}">
+                        <p:outputLabel value="#{item.dateFinSession}">
+                            <f:convertDateTime type="both" pattern="#{parametreBean.datePattern}" />
+                        </p:outputLabel>
+                    </p:column>
+                    <p:column headerText="Activité" footerText="Activité" filterBy="#{item.detailsActivite}">
+                        <p:outputLabel value="#{item.detailsActivite}"  title="#{item.detailsActivite}"/>
+                    </p:column>
+                    <p:column headerText="Date" footerText="Date" filterBy="#{item.dateRealisationActivite}" filterFunction="#{parametreBean.filterByDate}">
+                        <f:facet name="filter">
+                            <p:calendar navigator="true" pattern="#{parametreBean.dateDefautPattern()}" showOtherMonths="true" selectOtherMonths="true" 
+                                        showButtonPanel="true"  timeZone="#{parametreBean.timeZoneId}">
+                                <p:ajax event="dateSelect" oncomplete="PF('dataTb').filter()" />
+                                <p:ajax event="change" oncomplete="PF('dataTb').filter()"/>
+                            </p:calendar>
+                        </f:facet>
+                        <p:outputLabel value="#{item.dateRealisationActivite}">
+                            <f:convertDateTime type="both" pattern="#{parametreBean.datePattern}" timeZone="#{parametreBean.timeZoneId}" />
+                        </p:outputLabel>
+                    </p:column>
+                </p:dataTable>
+                <p:blockUI block="dataTb" trigger=":form1:dataTb:refreshBtn">
+                    <h2 class="load-font">Chargement en cours</h2>
+                    <p:graphicImage library="img" name="loading.gif" />
+                </p:blockUI>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>

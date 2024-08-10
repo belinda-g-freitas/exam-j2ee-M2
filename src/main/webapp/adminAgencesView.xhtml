@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="title">
+            Administration / Agences
+        </ui:define>
+        <ui:define name="container">
+            <h:form id="form1">
+                <p:fieldset legend="infos" id="infosFS">
+                    <h:panelGrid columns="2" cellpadding="5" id="infosPG">
+                        <p:outputLabel value="Code" for="code" title="Code avec au max 3 caractères" />
+                        <p:outputLabel value="Nom" for="nom" />
+
+                        <p:column>
+                            <p:inputText value="#{adminAgencesBean.formObject.code}" id="code" required="true" requiredMessage="Obligatoire"
+                                         readonly="#{!adminAgencesBean.renderComponent()}" validator="requiredAndNotBlankValid"/>
+                            <p:message id="codeMsg" for="code" />
+                        </p:column>
+                        <p:column>
+                            <p:inputText value="#{adminAgencesBean.formObject.nom}" id="nom" required="true" requiredMessage="Obligatoire"
+                                         readonly="#{!adminAgencesBean.renderComponent()}" validator="requiredAndNotBlankValid"/>
+                            <p:message id="nomMsg" for="nom" />
+                        </p:column>
+                    </h:panelGrid>
+                </p:fieldset>
+                <p:messages globalOnly="true" />
+                <p:growl globalOnly="true" id="dataTbMsg" life="8000" />
+                <p:dataTable value="#{adminAgencesBean.parametreAgenceDataModel}" var="item" emptyMessage="Vide !" id="dataTb" widgetVar="dataTb"
+                             paginator="true" rows="10" paginatorAlwaysVisible="true"
+                             style="width: 100%" reflow="true" resizableColumns="true" editable="#{adminAgencesBean.editParams()}" editMode="cell" rowIndexVar="itemIndex"
+                             lazy="true">
+                    <f:facet name="header">
+                        <p:defaultCommand target="recordBtn"/>
+                        <p:commandButton value="Rechercher" process="@this" update=":form2" icon="pi pi-search" actionListener="#{adminAgencesBean.charger(true)}" 
+                                         oncomplete="PF('dlg').show()" id="searchBtn" rendered="#{adminAgencesBean.haveReadPermission()}"/>
+                        <p:commandButton value="Enregistrer" actionListener="#{adminAgencesBean.enregistrer()}" styleClass="green-color"
+                                         update="@form" icon="pi pi-save" id="recordBtn" process="@form"
+                                         rendered="#{adminAgencesBean.renderComponent()}"/>
+                        <p:commandButton value="Effacer" process="@this" actionListener="#{adminAgencesBean.effacer()}" update="@form"
+                                         icon="pi pi-times" rendered="#{adminAgencesBean.haveCreatePermission() || adminAgencesBean.haveUpdatePermission()}"/>
+                        <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" styleClass="ms-4" placeholder="Mot-clé"/>
+                    </f:facet>
+                    <p:ajax event="cellEdit" listener="#{adminAgencesBean.onCellEdit}" update=":form1:dataTbMsg" />
+                    <p:column headerText="Paramètre" footerText="Paramètre" filterBy="#{item.parametre.code}" filterMatchMode="contains">
+                        <p:outputLabel value="#{item.parametre.code}" />
+                    </p:column>
+                    <p:column headerText="Description" footerText="Description" filterBy="#{item.parametre.description}" filterMatchMode="contains">
+                        <p:outputLabel value="#{item.parametre.description}" id="description" />
+                    </p:column>
+                    <p:column headerText="Valeur" footerText="Valeur" filterBy="#{item.valeur}" filterMatchMode="contains">
+                        <p:cellEditor>
+                            <f:facet name="output">
+                                <p:outputLabel value="#{item.valeur}" title="#{item.valeur}" />
+                            </f:facet>
+                            <f:facet name="input">
+                                <p:inputText value="#{item.valeur}" placeholder="#{'Ex : '||item.parametre.valeurParDefaut}" required="true" requiredMessage="Obligatoire" />
+                            </f:facet>
+                        </p:cellEditor>
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+            <p:dialog widgetVar="dlg" resizable="false" closable="true" closeOnEscape="true" draggable="true" dynamic="true" header="Agences" modal="true" 
+                      responsive="true" width="50%" appendTo="@(body)">
+                <p:ajax event="close" update=":form1" /> <!-- evite les NullPointer pour CellEditFeature -->
+                <h:form id="form2">
+                    <p:dataTable value="#{adminAgencesBean.dataModel}" var="item" emptyMessage="Vide !" 
+                                 rowKey="#{item.hashCode()}" paginator="true" rows="10" paginatorAlwaysVisible="true" id="dataTb" widgetVar="dataTb"
+                                 reflow="true" resizableColumns="true" rowIndexVar="itemIndex" selection="#{adminAgencesBean.selectedObject}"
+                                 selectionMode="single"
+                                 lazy="true">
+                        <f:facet name="header">
+                            <p:commandButton value="Actualiser" process="@this" actionListener="#{adminAgencesBean.charger(false)}"
+                                             update="@form" icon="pi pi-refresh" id="refreshBtn"/>
+                            <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                            <p:commandButton id="toggler" type="button" value="Colonnes" style="float:right" icon="pi pi-table" />
+                            <p:columnToggler datasource="dataTb" trigger="toggler" />
+                        </f:facet>
+                        <p:ajax event="rowSelect" listener="#{adminAgencesBean.onSelection()}" update=":form1" oncomplete="PF('dlg').hide()" />
+                        <p:column headerText="Code" footerText="Code" filterBy="#{item.code}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.code}" />
+                        </p:column>
+                        <p:column headerText="Nom" footerText="Nom" filterBy="#{item.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.nom}" />
+                        </p:column>
+                    </p:dataTable>
+                    <p:blockUI block="dataTb" trigger=":form2:dataTb:refreshBtn">
+                        <h2 class="load-font">Chargement en cours</h2>
+                        <p:graphicImage library="img" name="loading.gif" />
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+        </ui:define>
+    </ui:composition>
+</html>

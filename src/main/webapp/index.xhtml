@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    <h:head>
+        <title>
+            Authentification
+        </title>
+        <h:outputStylesheet library="css" name="style.css" />
+    </h:head>
+    <h:body style="background-image: url('resources/img/blue-background.svg')">
+        <p:dialog visible="true" widgetVar="dlg" id="dlg" responsive="true" closable="false" resizable="false" draggable="false">
+            <f:facet name="header">
+                <h2 style="font-weight: bold">MODEL</h2>
+            </f:facet>
+            <h:form id="index-form">
+                <h:panelGrid columns="3" cellpadding="5" id="login-panel">
+                    <p:outputLabel value="Identifiant" for="login" />
+                    <p:inputText id="login" value="#{sessionBean.identifiant}" required="true" requiredMessage="Obligatoire" />
+                    <p:message for="login" id="loginMsg" />
+
+                    <p:outputLabel value="Mot de passe" for="password" />
+                    <p:password id="password" value="#{sessionBean.motDePasse}" required="true" requiredMessage="Obligatoire" redisplay="true" />
+                    <p:message for="password" id="passwdMsg" />
+
+                    <p:column />
+                    <p:commandButton value="Se connecter" action="#{sessionBean.connect()}" update="@form" id="connect" icon="pi pi-check"/>
+                    <p:defaultCommand target="connect" />
+                </h:panelGrid>
+            </h:form>
+            <f:facet name="footer">
+                <h2 style="text-align: left">#{sessionBean.versionApp()}</h2>
+                <p:messages  closable="true" globalOnly="true">
+                    <p:autoUpdate />
+                </p:messages>
+            </f:facet>
+        </p:dialog>
+        <p:ajaxExceptionHandler type="jakarta.faces.application.ViewExpiredException" update="exceptionDialog" 
+                                onexception="PF('exceptionDialog').show();" />
+        <p:dialog id="exceptionDialog" header="Exception: #{pfExceptionHandler.type} occured!" 
+                  widgetVar="exceptionDialog" height="500px">
+            Message: #{pfExceptionHandler.message} <br/>
+            StackTrace: <h:outputText value="#{pfExceptionHandler.formattedStackTrace}" escape="false" />
+            <p:button onclick="document.location.href = document.location.href;" value="Reload!"/>
+        </p:dialog>
+    </h:body>
+</html>

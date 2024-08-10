@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    <ui:composition template="templates/template.xhtml">
+        <ui:define name="title">
+            Autres / A propos du logiciel
+        </ui:define>
+        <ui:define name="container">
+            <h:form id="form1">
+                <h:panelGrid columns="3" cellpadding="5">
+                    <h1>MODEL est le projet de référence pour le cours de JEE avancé</h1>
+                    <h3></h3>
+                </h:panelGrid>
+                <p:messages globalOnly="true"  />
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>

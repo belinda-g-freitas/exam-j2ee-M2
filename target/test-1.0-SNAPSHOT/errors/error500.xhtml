@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>
+            Erreur 500
+        </title>
+        <h:outputStylesheet library="css" name="style.css" />
+    </h:head>
+    <h:body>
+        <p:dialog header="Erreur 500" visible="true" modal="true" closable="false" resizable="false" draggable="false">
+            <h:form>
+                <h3>Une erreur est survenue sur le serveur</h3>
+                <p:commandButton value="Redirection" action="/index?faces-redirect=true" process="@this" ignoreAutoUpdate="true" />
+            </h:form>
+        </p:dialog>
+    </h:body>
+</html>

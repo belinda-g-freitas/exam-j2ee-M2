@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="title">
+            Administration / Rôles
+        </ui:define>
+        <ui:define name="container">
+            <h:form id="form1">
+                <p:fieldset legend="infos" id="infosFS">
+                    <h:panelGrid columns="3" cellpadding="5" id="infosPG">
+                        <p:outputLabel value="Code" for="code" />
+                        <p:outputLabel value="Nom" for="nom" />
+                        <p:outputLabel value="Description" for="description" />
+
+                        <p:column>
+                            <p:inputText value="#{adminRolesBean.formObject.code}" id="code" required="true" requiredMessage="Obligatoire"
+                                         readonly="#{!adminRolesBean.renderComponent()}" validator="requiredAndNotBlankValid"/>
+                            <p:message id="codeMsg" for="code" />
+                        </p:column>
+                        <p:column>
+                            <p:inputText value="#{adminRolesBean.formObject.nom}" id="nom" required="true" requiredMessage="Obligatoire"
+                                         readonly="#{!adminRolesBean.renderComponent()}" validator="requiredAndNotBlankValid"/>
+                            <p:message id="nomMsg" for="nom" />
+                        </p:column>
+                        <p:column>
+                            <p:inputText value="#{adminRolesBean.formObject.description}" id="description" required="true" requiredMessage="Obligatoire"
+                                         readonly="#{!adminRolesBean.renderComponent()}" validator="requiredAndNotBlankValid"/>
+                            <p:message id="descriptionMsg" for="description" />
+                        </p:column>
+                    </h:panelGrid>
+                </p:fieldset>
+                <p:messages globalOnly="true"   />
+                <p:growl globalOnly="true"   id="dataTbMsg"  life="8000"  />
+                <p:dataTable value="#{adminRolesBean.permissionRoleDataModel}" var="prItem" emptyMessage="Vide !" id="prDataTb" widgetVar="prDataTb"
+                                 paginator="true" rows="5" paginatorAlwaysVisible="true"
+                                 reflow="true" resizableColumns="true" editable="#{adminRolesBean.renderComponent()}" editMode="cell" rowIndexVar="prItemIndex"
+                                 rowStyleClass="#{(prItem.active eq false)? 'red-color' : null}" 
+                                 lazy="true">
+                        <f:facet name="header">
+                            <p:defaultCommand target="recordBtn"/>
+                            <p:commandButton value="Rechercher" process="@this" update=":form2" icon="pi pi-search" actionListener="#{adminRolesBean.chargerRoles(true)}" 
+                                             oncomplete="PF('dlg').show()" id="searchBtn" rendered="#{adminRolesBean.haveReadPermission()}"/>
+                            <p:commandButton value="Enregistrer" actionListener="#{adminRolesBean.enregistrer()}" styleClass="green-color"
+                                             update="@form" icon="pi pi-save" id="recordBtn" process="@form"
+                                             rendered="#{adminRolesBean.renderComponent()}"/>
+                            <p:commandButton value="Effacer" process="@this" actionListener="#{adminRolesBean.effacer()}" update="@form"
+                                             icon="pi pi-times" rendered="#{adminRolesBean.haveCreatePermission() || adminRolesBean.haveUpdatePermission()}"/>
+                            <p:commandButton value="Ajouter" process="@this" update=":form3" title="Ajouter une permission" icon="pi pi-plus" actionListener="#{adminRolesBean.chargerPermissions(false)}"
+                                             rendered="#{adminRolesBean.renderComponent()}" oncomplete="PF('prDlg').show()"/>
+                            <p:inputText id="globalFilter" onkeyup="PF('prDataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                        </f:facet>
+                        <p:column headerText="Nom permission" footerText="Nom permission" filterBy="#{prItem.permission.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{prItem.permission.nom}" />
+                        </p:column>
+                        <p:column headerText="IHM" footerText="IHM" filterBy="#{prItem.permission.ihm.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{prItem.permission.ihm.nom}" />
+                        </p:column>
+                        <p:column headerText="Description IHM" footerText="Description IHM" filterBy="#{prItem.permission.ihm.description}" filterMatchMode="contains">
+                            <p:outputLabel value="#{prItem.permission.ihm.description}" />
+                        </p:column>
+                        <p:column headerText="Operation" footerText="Operation" filterBy="#{prItem.permission.operation.label}" filterMatchMode="contains">
+                            <p:outputLabel value="#{prItem.permission.operation.label}" />
+                        </p:column>
+                        <p:column headerText="Active" footerText="Active" filterBy="#{prItem.active}">
+                            <p:inputSwitch value="#{prItem.active}" onLabel="Oui" offLabel="Non" disabled="true"/>
+                        </p:column>
+                        <p:column headerText="Actions" footerText="Actions">
+                            <p:commandButton value="#{(prItem.active eq true)?'Retirer':'Attribuer'}" process="@this" 
+                                             actionListener="#{adminRolesBean.retirerPermissionRole(prItem)}" 
+                                             update=":form1:prDataTb" title="#{(prItem.active eq true)?'Retirer':'Attribuer'} cette permission" 
+                                             styleClass="red-color" icon="ui-icon-#{(prItem.active eq true)?'minus':'plus'}"
+                                             rendered="#{adminRolesBean.renderComponent()}"/>
+                        </p:column>
+                    </p:dataTable>
+            </h:form>
+            <p:dialog widgetVar="dlg" resizable="false" closable="true" closeOnEscape="true" draggable="true" dynamic="true" header="Rôles" modal="true" 
+                      responsive="true" width="60%" appendTo="@(body)">
+                <h:form id="form2">
+                    <p:dataTable value="#{adminRolesBean.dataModel}" var="item" emptyMessage="Vide !" 
+                                 rowKey="#{item.hashCode()}" paginator="true" rows="10" paginatorAlwaysVisible="true" id="dataTb" widgetVar="dataTb" style="width: 100%" 
+                                 reflow="true" resizableColumns="true" rowIndexVar="itemIndex" selection="#{adminRolesBean.selectedObject}"
+                                 selectionMode="single"
+                                 lazy="true">
+                        <f:facet name="header">
+                            <p:commandButton value="Actualiser" process="@this" actionListener="#{adminRolesBean.chargerRoles(false)}" 
+                                             update="@form" icon="pi pi-refresh" id="refreshBtn"/>
+                            <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                            <p:commandButton id="toggler" type="button" value="Colonnes" style="float:right" icon="pi pi-table" />
+                            <p:columnToggler datasource="dataTb" trigger="toggler" />
+                        </f:facet>
+                        <p:ajax event="rowSelect" listener="#{adminRolesBean.onSelection()}" update=":form1" oncomplete="PF('dlg').hide()" />
+                        <p:column headerText="Code" footerText="Code" filterBy="#{item.code}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.code}" />
+                        </p:column>
+                        <p:column headerText="Nom" footerText="Nom" filterBy="#{item.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.nom}" />
+                        </p:column>
+                        <p:column headerText="Description" footerText="Description" filterBy="#{item.description}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.description}" />
+                        </p:column>
+                    </p:dataTable>
+                    <p:blockUI block="dataTb" trigger=":form2:dataTb:refreshBtn">
+                        <h2 class="load-font">Chargement en cours</h2>
+                        <p:graphicImage library="img" name="loading.gif" />
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+            <p:dialog widgetVar="prDlg" resizable="false" closable="true" closeOnEscape="true" draggable="true" dynamic="true" header="Permissions" modal="true" 
+                      responsive="true" width="70%" appendTo="@(body)">
+                <h:form id="form3">
+                    <p:dataTable value="#{adminRolesBean.permissionDataModel}" var="item" emptyMessage="Vide !"
+                                 rowKey="#{item.hashCode()}" paginator="true" rows="10" paginatorAlwaysVisible="true" id="dataTb" widgetVar="dataTb" style="width: 100%" 
+                                 reflow="true" resizableColumns="true" rowIndexVar="itemIndex" selection="#{adminRolesBean.selectedPermissionList}"
+                                 selectionMode="multiple" rowStyleClass="#{(item.active eq false)? 'red-color' : null}"
+                                 lazy="true">
+                        <f:facet name="header">
+                            <p:commandButton value="Actualiser" process="@this" actionListener="#{adminRolesBean.chargerPermissions(false)}" update="@form" 
+                                             icon="pi pi-refresh" id="refreshBtn"/>
+                            <p:inputText id="globalFilter" onkeyup="PF('dataTb').filter()" style="width:150px; margin-left: 10px" placeholder="Mot-clé"/>
+                            <p:commandButton id="toggler" type="button" value="Colonnes" style="float:right" icon="pi pi-table" />
+                            <p:columnToggler datasource="dataTb" trigger="toggler" />
+                        </f:facet>
+                        <p:column headerText="Nom permission" footerText="Nom permission" filterBy="#{item.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.nom}" />
+                        </p:column>
+                        <p:column headerText="IHM" footerText="IHM" filterBy="#{item.ihm.nom}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.ihm.nom}" />
+                        </p:column>
+                        <p:column headerText="Description IHM" footerText="Description IHM" filterBy="#{item.ihm.description}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.ihm.description}" />
+                        </p:column>
+                        <p:column headerText="Operation" footerText="Operation" filterBy="#{item.operation.label}" filterMatchMode="contains">
+                            <p:outputLabel value="#{item.operation.label}" />
+                        </p:column>
+                        <p:column headerText="Active" footerText="Active" filterBy="#{item.active}">
+                            <p:inputSwitch value="#{item.active}" onLabel="Oui" offLabel="Non" disabled="true"/>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:commandButton value="Ajouter" icon="pi pi-check" actionListener="#{adminRolesBean.ajouterPermissionRole()}" 
+                                             process="dataTb" update=":form1:prDataTb" oncomplete="PF('prDlg').hide()" />
+                        </f:facet>
+                    </p:dataTable>
+                    <p:blockUI block="dataTb" trigger=":form3:dataTb:refreshBtn">
+                        <h2 class="load-font">Chargement en cours</h2>      
+                        <p:graphicImage library="img" name="loading.gif" />
+                    </p:blockUI>
+                </h:form>
+            </p:dialog>
+        </ui:define>
+    </ui:composition>
+</html>
