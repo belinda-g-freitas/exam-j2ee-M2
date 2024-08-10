@@ -24,4 +24,4 @@ PS: Linux is my ride or die.
 ##### NOTES
 - This project isn't originally mine, I just added some features.
 - The project UI is in French only (sadly) 😿
-- The actual <a href="./TP jee.pdf" target="_blank">work</a> we were ask to do
+- The actual <a href="./TP jee.pdf" target="_blank">work</a> we were asked to do
