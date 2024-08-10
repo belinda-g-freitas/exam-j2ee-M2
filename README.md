@@ -1,4 +1,6 @@
-#exam-j2ee-M2
+# exam-j2ee-M2
 
 
-J2EE exam project. This project isn't originally mine, I just added some features.
+It was our J2EE course exam project in Master 2.
+
+##### NB: This project isn't originally mine, I just added some features.
