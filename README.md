@@ -18,7 +18,8 @@ If you're curious enough, you will find out 😉.
 
 ## Setting up the projet
 - <a href="./GUIDE_DEPL_PROJET_MODELE_JEE.pdf" target="_blank">Windows</a> users
-- Linux users: it's pretty much the same as for Windows, but you already know you'll *sudo* at some point 😄
+- Linux users: it's pretty much the same as for Windows, but you already know you'll *sudo* at some point 😄.
+PS: Linux is my ride or die.
 
 ##### NOTES
 - This project isn't originally mine, I just added some features.
