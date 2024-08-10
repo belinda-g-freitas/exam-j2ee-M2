@@ -9,7 +9,7 @@ J2EE, which stands for Java 2 Enterprise Edition, is a set of frameworks, an ass
 If you're curious enough, you will find out 😉.
 
 ## Stack
-- Server: Glassifish v7.0.14
+- Server: Glassifish 7.0.14
 - DB: PostgreSQL 16
 - DBMS: pgAdmin 4
 - Language: Java
