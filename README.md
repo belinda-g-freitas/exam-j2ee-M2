@@ -12,8 +12,7 @@ If you're curious enough, you will find out 😉.
 - Server: Glassifish 7.0.14
 - DB: PostgreSQL 16
 - DBMS: pgAdmin 4
-- Language: Java
-- Compiler: JDK 17
+- Language: Java (JDK 17)
 - IDE: NetBeans (to go faster)
 
 ## Setting up the projet
