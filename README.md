@@ -22,6 +22,6 @@ If you're curious enough, you will find out 😉.
 PS: Linux is my ride or die.
 
 ##### NOTES
-- This project isn't originally mine, I just added some features.
+- This project isn't originally mine, I just added some features (which are not uploaded in the repo).
 - The project UI is in French only (sadly) 😿
 - The actual <a href="./TP jee.pdf" target="_blank">work</a> we were asked to do
